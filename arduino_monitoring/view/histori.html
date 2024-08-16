@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Histori Keseluruhan</title>
+
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+    th {
+      background-color: #f4f4f4;
+    }
+    form {
+      margin-bottom: 20px;
+    }
+    input[type="number"], input[type="text"] {
+      padding: 6px;
+      margin-right: 10px;
+    }
+    input[type="submit"] {
+      padding: 6px 12px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Histori Keseluruhan</h1>
+
+  <h2>Insert New Record</h2>
+  <form id="insertForm">
+    <label for="id_sensor_cahaya">ID Sensor Cahaya:</label>
+    <input type="number" id="id_sensor_cahaya" name="id_sensor_cahaya" required>
+    <label for="id_sensor_gerak">ID Sensor Gerak:</label>
+    <input type="number" id="id_sensor_gerak" name="id_sensor_gerak" required>
+    <input type="submit" value="Insert">
+  </form>
+
+  <h2>Delete Record</h2>
+  <form id="deleteForm">
+    <label for="deleteId">Record ID to Delete:</label>
+    <input type="number" id="deleteId" name="deleteId" required>
+    <input type="submit" value="Delete">
+  </form>
+
+  <h2>Histori Table</h2>
+  <table id="historiTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>ID Sensor Cahaya</th>
+        <th>ID Sensor Gerak</th>
+        <th>Read Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Data will be populated here via JavaScript -->
+    </tbody>
+  </table>
+
+  <script>
+    // Fetch and display history data
+    function fetchHistori() {
+      fetch('/histori')
+        .then(response => response.json())
+        .then(data => {
+          const tableBody = document.querySelector('#historiTable tbody');
+          tableBody.innerHTML = ''; // Clear existing data
+
+          data.forEach(record => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${record.id_histori_keseluruhan}</td>
+              <td>${record.id_sensor_cahaya}</td>
+              <td>${record.id_sensor_gerak}</td>
+              <td>${record.readdata_at}</td>
+            `;
+            tableBody.appendChild(row);
+          });
+        })
+        .catch(error => console.error('Error fetching history:', error));
+    }
+
+    // Insert new record
+    document.getElementById('insertForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const idSensorCahaya = document.getElementById('id_sensor_cahaya').value;
+      const idSensorGerak = document.getElementById('id_sensor_gerak').value;
+
+      fetch('/histori', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          id_sensor_cahaya: idSensorCahaya,
+          id_sensor_gerak: idSensorGerak
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        alert(data.message);
+        fetchHistori(); // Refresh the table
+      })
+      .catch(error => console.error('Error inserting record:', error));
+    });
+
+    // Delete a record
+    document.getElementById('deleteForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const deleteId = document.getElementById('deleteId').value;
+
+      fetch(`/histori/${deleteId}`, {
+        method: 'DELETE'
+      })
+      .then(response => response.json())
+      .then(data => {
+        alert(data.message);
+        fetchHistori(); // Refresh the table
+      })
+      .catch(error => console.error('Error deleting record:', error));
+    });
+
+    // Load the history data on page load
+    window.onload = fetchHistori;
+  </script>
+</body>
+</html>

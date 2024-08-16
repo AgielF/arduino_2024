@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log Sensor Gerak</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <link href="../src/output.css" rel="stylesheet">
+</head>
+<body>
+    <h1>Log Sensor Gerak</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Dist Value</th>
+                <th>Read At</th>
+                <th>Status Lampu</th>
+                <th>Status Buzzer</th>
+            </tr>
+        </thead>
+        <tbody id="logTableBody">
+            <tr>
+                <td colspan="5">Loading...</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const socket = io();
+
+            socket.on('connect', () => {
+                console.log('Connected to server');
+            });
+
+            socket.on('disconnect', () => {
+                console.log('Disconnected from server');
+            });
+
+            socket.on('data', (data) => {
+                console.log('Data received from server:', data);
+            });
+
+            fetch('/logsensorgerak')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const tableBody = document.getElementById('logTableBody');
+                    tableBody.innerHTML = '';
+                    data.forEach(log => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${log.id_sensor_gerak}</td>
+                            <td>${log.distance}</td>
+                            <td>${new Date(log.readdata_at).toLocaleString()}</td>
+                            <td>${log.status_lampu}</td>
+                            <td>${log.status_buzzer}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching log data:', error);
+                    const tableBody = document.getElementById('logTableBody');
+                    tableBody.innerHTML = '<tr><td colspan="5">Failed to load data</td></tr>';
+                });
+        });
+    </script>
+</body>
+</html>

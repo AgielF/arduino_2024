@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sensor Gerak</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <link href="../src/output.css" rel="stylesheet">
+</head>
+<body>
+    <h1>Sensor Gerak</h1>
+    <div>
+        <strong>DIST Value:</strong>
+        <span id="distValue">Loading...</span>
+    </div>
+
+    <script>
+        const socket = io();
+        const distValueSpan = document.getElementById('distValue');
+
+        socket.on('data', (data) => {
+            if (data.data.startsWith("DIST:")) {
+                const distValue = data.data.split(":")[1];
+                distValueSpan.textContent = distValue;
+            }
+        });
+    </script>
+</body>
+</html>

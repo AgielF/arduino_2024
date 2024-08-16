@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sensor Cahaya</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <link href="../src/output.css" rel="stylesheet">
+</head>
+<body>
+    <h1>Sensor Cahaya</h1>
+    <div>
+        <strong>LDR Value:</strong>
+        <span id="ldrValue">Loading...</span>
+    </div>
+
+    <script>
+        const socket = io();
+        const ldrValueSpan = document.getElementById('ldrValue');
+
+        socket.on('data', (data) => {
+            if (data.data.startsWith("LDR:")) {
+                const ldrValue = data.data.split(":")[1];
+                ldrValueSpan.textContent = ldrValue;
+            }
+        });
+    </script>
+</body>
+</html>
